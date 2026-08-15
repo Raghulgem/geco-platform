@@ -15,12 +15,10 @@ export default function FrameScroller({ folderPath, frameCount, customProgress }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<HTMLImageElement[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [errorCount, setErrorCount] = useState(0);
 
   const targetProgressRef = useRef(0);
   const currentProgressRef = useRef(0);
   const animationFrameId = useRef<number | null>(null);
-  
   const lastDrawnFrameRef = useRef<number>(-1); 
 
   useEffect(() => {
@@ -29,35 +27,53 @@ export default function FrameScroller({ folderPath, frameCount, customProgress }
     }
   }, [customProgress]);
 
-  // 1. Preload all images into memory
+  // 1. Preload all images into memory (BULLETPROOF VERSION)
   useEffect(() => {
     let loadedCount = 0;
     const imgArray: HTMLImageElement[] = [];
+    let isCancelled = false;
+
+    // FAILSAFE: Force the engine to start after 3.5 seconds even if a frame fails to load
+    const failsafeTimer = setTimeout(() => {
+      if (!isCancelled) {
+        console.warn("[GECO SYSTEM] Failsafe triggered. Booting engine with available frames.");
+        setImages(imgArray);
+        setLoaded(true);
+      }
+    }, 3500);
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
       const paddedNumber = String(i).padStart(3, "0");
-      img.src = `${folderPath}/${paddedNumber}.png`;
       
+      // FIX: Always attach event listeners BEFORE setting the src!
       img.onload = () => {
         loadedCount++;
-        if (loadedCount === frameCount) {
+        if (loadedCount === frameCount && !isCancelled) {
+          clearTimeout(failsafeTimer);
           setImages(imgArray);
           setLoaded(true);
         }
       };
       
       img.onerror = () => {
-        console.error(`[GECO DEBUG] Missing image: ${img.src}`);
         loadedCount++;
-        if (loadedCount === frameCount) {
+        if (loadedCount === frameCount && !isCancelled) {
+          clearTimeout(failsafeTimer);
           setImages(imgArray);
           setLoaded(true);
         }
       }
       
+      // Set source LAST so the browser doesn't skip the event load trigger
+      img.src = `${folderPath}/${paddedNumber}.png`;
       imgArray.push(img);
     }
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(failsafeTimer);
+    };
   }, [folderPath, frameCount]);
 
   // 2. Ultra-Lightweight Infinite Loop Animation
@@ -65,7 +81,6 @@ export default function FrameScroller({ folderPath, frameCount, customProgress }
     if (!loaded || images.length === 0 || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
-    // alpha: false optimizes the canvas for speed when we don't need native transparency
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -77,22 +92,17 @@ export default function FrameScroller({ folderPath, frameCount, customProgress }
     const render = () => {
       if (!isRunning) return;
 
-      // Smooth interpolation catch-up (0.07 is buttery smooth)
       const diff = targetProgressRef.current - currentProgressRef.current;
       currentProgressRef.current += diff * 0.07;
 
-      // Prevent negative frames if scrolling up at the very start
       let safeProgress = Math.max(0, currentProgressRef.current);
 
-      // PERFECT PING-PONG MATH:
-      // Converts infinite scrolling (0, 1, 2, 3...) into a bouncy loop (0 -> 1 -> 0 -> 1)
       let cycle = safeProgress % 2;
       let pingPongProgress = cycle > 1 ? 2 - cycle : cycle;
 
       let frameIndex = Math.floor(pingPongProgress * (frameCount - 1));
       frameIndex = Math.max(0, Math.min(images.length - 1, frameIndex));
 
-      // PERFORMANCE HACK: Only draw if the frame actually changed!
       if (frameIndex !== lastDrawnFrameRef.current) {
         const img = images[frameIndex];
         
@@ -103,7 +113,7 @@ export default function FrameScroller({ folderPath, frameCount, customProgress }
           const x = (canvas.width / 2) - (drawWidth / 2);
           const y = (canvas.height / 2) - (drawHeight / 2);
 
-          ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill black background fast
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, x, y, drawWidth, drawHeight);
           
           lastDrawnFrameRef.current = frameIndex;
@@ -131,11 +141,6 @@ export default function FrameScroller({ folderPath, frameCount, customProgress }
         </div>
       )}
       
-      {/* 
-        GPU ACCELERATION MAGIC: 
-        We use CSS mix-blend-screen to drop the black background, 
-        and CSS filters for the HDR Bloom. This runs at 144hz flawlessly!
-      */}
       <canvas
         ref={canvasRef}
         width={1920}
