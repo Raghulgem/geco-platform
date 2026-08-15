@@ -15,49 +15,49 @@ const catalogItems = [
     price: "₹ 8.00 LAKH", 
     slug: "vibrating-screen-14x4", 
     isFlagship: true,
-    thumb: "/sequences/vibrating-screen-14x4/frame_001.jpg" 
+    thumb: "/sequences/vibrating-screen-14x4/001.png" 
   },
   { 
     name: "Bucket Sand Washing Machine", 
     price: "₹ 18.00 LAKH", 
     slug: "bucket-sand-washing", 
     isFlagship: true,
-    thumb: "/sequences/bucket-sand-washing/frame_001.jpg" 
+    thumb: "/sequences/bucket-sand-washing/001.png" 
   },
   { 
     name: "Secondary Jaw Crusher 30x10", 
     price: "₹ 13.00 LAKH", 
     slug: "secondary-jaw-30x10", 
     isFlagship: true, 
-    thumb: "/sequences/secondary-jaw-30x10/frame_001.jpg" 
+    thumb: "/sequences/secondary-jaw-30x10/001.png" 
   },
   { 
     name: "Cone Crusher 200 TPH", 
     price: "₹ 60.00 LAKH", 
     slug: "cone-crusher-200tph", 
     isFlagship: true, 
-    thumb: "/sequences/cone-crusher-200tph/frame_001.jpg"
+    thumb: "/sequences/cone-crusher-200tph/001.png"
   },
   { 
     name: "Horizontal Shaft Impactor", 
     price: "₹ 16.50 LAKH", 
     slug: "horizontal-shaft-impactor", 
     isFlagship: true, 
-    thumb: "/sequences/horizontal-shaft-impactor/frame_001.jpg" 
+    thumb: "/sequences/horizontal-shaft-impactor/001.png" 
   },
   { 
     name: "Mobile Stone Crusher Plant", 
     price: "₹ 80.00 LAKH", 
     slug: "stone-crusher-plant", 
     isFlagship: true, 
-    thumb: "/sequences/stone-crusher-plant/frame_001.jpg" 
+    thumb: "/sequences/stone-crusher-plant/001.png" 
   },
   { 
     name: "Impact Crusher", 
     price: "₹ 15.00 LAKH", 
     slug: "impact-crusher", 
     isFlagship: true, 
-    thumb: "/sequences/impact-crusher/frame_001.jpg" 
+    thumb: "/sequences/impact-crusher/001.png" 
   }
 ];
 
@@ -116,7 +116,7 @@ export default function CatalogPage() {
                   <img 
                     src={item.thumb} 
                     alt={item.name} 
-                    className="w-full h-full object-cover scale-150 mix-blend-screen opacity-90 group-hover:scale-125 transition-transform duration-500"
+                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                   />
                 ) : (
                   <div className="w-full h-full border border-[#262B36] border-dashed rounded flex flex-col items-center justify-center text-[#262B36] group-hover:border-[#FFC700]/30 transition-colors">

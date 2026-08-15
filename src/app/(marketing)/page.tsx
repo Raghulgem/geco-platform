@@ -21,10 +21,10 @@ export default function HomePage() {
   };
 
   const featuredProducts = [
-    { name: "Jaw Crusher 30 x 10", price: "₹ 13.00 LAKH", image: "/sequences/secondary-jaw-30x10/frame_001.jpg", slug: "secondary-jaw-30x10", badge: "Best Seller" },
-    { name: "Bucket Sand Washing Machine", price: "₹ 18.00 LAKH", image: "/sequences/bucket-sand-washing/frame_001.jpg", slug: "bucket-sand-washing" },
-    { name: "Cone Crusher 200 TPH", price: "₹ 60.00 LAKH", image: "/sequences/cone-crusher-200tph/frame_001.jpg", slug: "cone-crusher-200tph" },
-    { name: "Horizontal Shaft Impactor", price: "₹ 16.50 LAKH", image: "/sequences/horizontal-shaft-impactor/frame_001.jpg", slug: "horizontal-shaft-impactor" }
+    { name: "Jaw Crusher 30 x 10", price: "₹ 13.00 LAKH", image: "/sequences/secondary-jaw-30x10/001.png", slug: "secondary-jaw-30x10", badge: "Best Seller" },
+    { name: "Bucket Sand Washing Machine", price: "₹ 18.00 LAKH", image: "/sequences/bucket-sand-washing/001.png", slug: "bucket-sand-washing" },
+    { name: "Cone Crusher 200 TPH", price: "₹ 60.00 LAKH", image: "/sequences/cone-crusher-200tph/001.png", slug: "cone-crusher-200tph" },
+    { name: "Horizontal Shaft Impactor", price: "₹ 16.50 LAKH", image: "/sequences/horizontal-shaft-impactor/001.png", slug: "horizontal-shaft-impactor" }
   ];
 
   return (
@@ -98,7 +98,8 @@ export default function HomePage() {
                   {product.badge && (
                     <span className="absolute top-3 left-3 bg-[#FFC700]/10 text-[#FFC700] border border-[#FFC700]/30 text-[9px] font-bold px-2 py-1 rounded uppercase tracking-widest z-10">{product.badge}</span>
                   )}
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover scale-150 mix-blend-screen opacity-80 group-hover:scale-125 transition-transform duration-700" />
+                  {/* Clean standard image display without hidden blend modes */}
+                  <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
                 </div>
                 <div className="p-6 flex flex-col flex-grow justify-between space-y-6">
                   <div>
@@ -279,13 +280,13 @@ export default function HomePage() {
       </div>
 
       {/* ========================================= */}
-      {/* 5. CYBER-GRID FOOTER                        */}
+      {/* 5. CYBER-GRID FOOTER                      */}
       {/* ========================================= */}
       <footer className="w-full bg-[#050507] border-t border-[#1A1D24] mt-24 pt-20 pb-10 relative z-0">
         
         <Link href="/products" className="absolute right-12 -top-16 w-72 h-32 bg-[#0E1116]/80 backdrop-blur-xl border border-[#FFC700]/30 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] flex items-center p-4 gap-4 z-20 hidden lg:flex group cursor-pointer hover:border-[#FFC700] transition-colors">
           <div className="w-24 h-24 bg-[#050507] rounded-lg border border-[#262B36] flex items-center justify-center p-2 overflow-hidden">
-             <img src="/sequences/secondary-jaw-30x10/frame_001.jpg" alt="Preview" className="w-full h-full object-cover scale-150 mix-blend-screen opacity-80 group-hover:scale-125 transition-transform" />
+             <img src="/sequences/secondary-jaw-30x10/001.png" alt="Preview" className="w-full h-full object-cover" />
           </div>
           <div>
             <p className="text-white text-xs font-bold uppercase tracking-widest mb-1">Full Catalog</p>
