@@ -1,14 +1,23 @@
 // Lead Developer: Raghul 
-// Theme: Dark Cyber-Industrial (Complete Homepage with Restored Telemetry & Footer)
-// Location: src/app/page.tsx
+// Theme: Dark Cyber-Industrial (Homepage with Integrated Quote Modal & Flagship Buttons)
+// Location: src/app/(marketing)/page.tsx
 
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import QuoteModal from "@/components/ui/quote-modal";
 
 export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({ name: "", price: "", image: "" });
+
+  // Helper to open modal with product details
+  const openQuote = (name: string, price: string, image: string) => {
+    setModalData({ name, price, image });
+    setIsModalOpen(true);
+  };
 
   // Force scroll to top on mount
   useEffect(() => {
@@ -113,9 +122,20 @@ export default function HomePage() {
                       <span className="text-gray-600 text-[10px] uppercase">/ Unit</span>
                     </div>
                   </div>
-                  <Link href={`/products/${product.slug}`} className="block w-full text-center bg-[#1A1D24] text-white hover:bg-[#FFC700] hover:text-black uppercase text-[10px] font-bold tracking-widest py-3 rounded-lg transition-colors">
-                    View Machine →
-                  </Link>
+                  
+                  {/* DUAL ACTION BUTTONS (View Machine + Get Quote Popup) */}
+                  <div className="flex flex-col gap-2">
+                    <Link href={`/products/${product.slug}`} className="block w-full text-center bg-[#1A1D24] text-white hover:bg-[#FFC700] hover:text-black uppercase text-[10px] font-bold tracking-widest py-3 rounded-lg transition-colors">
+                      View Machine →
+                    </Link>
+                    <button 
+                      onClick={() => openQuote(product.name, product.price, product.image)}
+                      className="block w-full text-center bg-[#FFC700]/10 border border-[#FFC700]/30 text-[#FFC700] hover:bg-[#FFC700] hover:text-black uppercase text-[10px] font-bold tracking-widest py-2.5 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Get Best Quote ⚡
+                    </button>
+                  </div>
+
                 </div>
               </div>
             ))}
@@ -177,7 +197,7 @@ export default function HomePage() {
         </section>
 
         {/* ========================================= */}
-        {/* 4. TELEMETRY (Restored Full Section)      */}
+        {/* 4. TELEMETRY                              */}
         {/* ========================================= */}
         <section className="bg-gradient-to-b from-[#14171D] to-[#0A0B0E] border border-[#262B36] rounded-2xl p-8 md:p-12 shadow-2xl mt-12 relative overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#FFC700] opacity-[0.03] blur-[100px] pointer-events-none rounded-full"></div>
@@ -196,7 +216,6 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
             
-            {/* Left: Enhanced Data Readout */}
             <div className="lg:col-span-4 space-y-8 pr-0 lg:pr-8 border-r-0 lg:border-r border-[#262B36]">
               <div className="flex items-end gap-4">
                 <span className="text-7xl font-black text-white leading-none tracking-tighter">4.2</span>
@@ -206,7 +225,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Gold Progress Bars */}
               <div className="space-y-4 font-mono text-xs">
                 {[ { s: "5★", p: "54%" }, { s: "4★", p: "7%" }, { s: "3★", p: "4%" }, { s: "2★", p: "15%" }, { s: "1★", p: "20%" } ].map((bar, i) => (
                   <div key={i} className="flex items-center gap-4">
@@ -219,7 +237,6 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Gold Satisfaction Module */}
               <div className="bg-[#050507] p-6 rounded-xl border border-[#262B36] space-y-4 font-mono text-xs shadow-inner">
                 <p className="text-[#FFC700] font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -235,7 +252,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: Enhanced Review Feed */}
             <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 { n: "Muhamme", l: "Mangalore, KA", p: "100 TPH Cone Crusher", d: "04 AUG 2026", s: "★★★★☆", txt: "Robust machinery, output consistently exceeds expected TPH. Solid build quality." },
@@ -270,9 +286,6 @@ export default function HomePage() {
               ))}
             </div>
             
-            <button onClick={() => alert("Accessing complete client telemetry logs...")} className="sm:hidden w-full border border-[#262B36] text-gray-400 hover:text-[#FFC700] hover:border-[#FFC700] px-6 py-3 rounded text-[10px] font-bold uppercase tracking-widest transition-colors bg-[#0A0B0E] mt-4">
-              Access All Logs →
-            </button>
           </div>
         </section>
 
@@ -369,6 +382,16 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* POPUP QUOTE MODAL */}
+      <QuoteModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        productName={modalData.name}
+        productPrice={modalData.price}
+        productImage={modalData.image}
+      />
+
     </main>
   );
 }

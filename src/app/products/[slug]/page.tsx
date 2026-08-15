@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import FrameScroller from "@/components/3d-engine/FrameScroller"; 
 import ParticleBackground from "@/components/ui/particle-background";
+import QuoteModal from "@/components/ui/quote-modal";
 
 const productData: Record<string, any> = {
   "bucket-sand-washing": {
@@ -17,6 +18,12 @@ const productData: Record<string, any> = {
     type: "Sand Washer",
     desc: "Provides both M-sand and P-sand output with inbuilt planetary gearbox.",
     frames: 100, 
+    image: "/sequences/bucket-sand-washing/001.png",
+    specs: [
+      { label: "Capacity", value: "50-100 TPH" },
+      { label: "Output", value: "M-Sand & P-Sand" },
+      { label: "Gearbox", value: "Inbuilt Planetary" }
+    ]
   },
   "vibrating-screen-14x4": {
     name: "GECO Vibrating Screen 14 x 4",
@@ -25,6 +32,12 @@ const productData: Record<string, any> = {
     type: "Vibrating Screen",
     desc: "High-frequency screening for precise material separation.",
     frames: 100, 
+    image: "/sequences/vibrating-screen-14x4/001.png",
+    specs: [
+      { label: "Screen Dimension", value: "14 ft x 4 ft" },
+      { label: "Frequency", value: "High-Frequency" },
+      { label: "Application", value: "Material Separation" }
+    ]
   },
   "secondary-jaw-30x10": {
     name: "Secondary Jaw Crusher 30x10",
@@ -33,6 +46,12 @@ const productData: Record<string, any> = {
     type: "Jaw Crusher",
     desc: "Optimized for recycling, construction, and heavy stone crushing.",
     frames: 100, 
+    image: "/sequences/secondary-jaw-30x10/001.png",
+    specs: [
+      { label: "Feed Size", value: "Up to 250mm" },
+      { label: "Capacity", value: "20–50 TPH" },
+      { label: "Structure", value: "Heavy-Duty Welded" }
+    ]
   },
   "horizontal-shaft-impactor": {
     name: "Horizontal Shaft Impactor 100 TPH",
@@ -41,6 +60,12 @@ const productData: Record<string, any> = {
     type: "Impact Crusher",
     desc: "Features a 760mm rotor size for maximum impact efficiency.",
     frames: 100, 
+    image: "/sequences/horizontal-shaft-impactor/001.png",
+    specs: [
+      { label: "Rotor Size", value: "760mm" },
+      { label: "Capacity", value: "100 TPH" },
+      { label: "Efficiency", value: "Maximum Impact" }
+    ]
   },
   "cone-crusher-200tph": {
     name: "Cone Crusher Manufacturer 200 TPH",
@@ -49,6 +74,12 @@ const productData: Record<string, any> = {
     type: "Cone Crusher",
     desc: "Heavy-duty secondary crushing for the toughest granite and ores.",
     frames: 100, 
+    image: "/sequences/cone-crusher-200tph/001.png",
+    specs: [
+      { label: "Capacity", value: "200 TPH" },
+      { label: "Application", value: "Granite & Ores" },
+      { label: "Stage", value: "Secondary Crushing" }
+    ]
   },
   "stone-crusher-30x08": {
     name: "Stone Crusher 30 x 08",
@@ -57,6 +88,12 @@ const productData: Record<string, any> = {
     type: "Jaw Crusher",
     desc: "Features a 150x250 mm jaw opening size for primary stage crushing.",
     frames: 100, 
+    image: "/sequences/stone-crusher-30x08/001.png",
+    specs: [
+      { label: "Opening Size", value: "150x250 mm" },
+      { label: "Capacity", value: "50 TPH" },
+      { label: "Stage", value: "Primary Crushing" }
+    ]
   },
   "stone-crusher-plant": {
     name: "Mobile Stone Crusher Plant",
@@ -65,6 +102,12 @@ const productData: Record<string, any> = {
     type: "Mobile Crushing Plant",
     desc: "Wheel-mounted chassis for rapid deployment across quarry sites.",
     frames: 100, 
+    image: "/sequences/stone-crusher-plant/001.png",
+    specs: [
+      { label: "Mobility", value: "Wheel-Mounted Chassis" },
+      { label: "Capacity", value: "50–100 TPH" },
+      { label: "Deployment", value: "Rapid Site Setup" }
+    ]
   },
   "vibrating-screen-machine": {
     name: "Vibrating Screen Machine",
@@ -73,6 +116,12 @@ const productData: Record<string, any> = {
     type: "Vibrating Screen",
     desc: "Built for extreme load capacities and continuous operational sorting.",
     frames: 100, 
+    image: "/sequences/vibrating-screen-machine/001.png",
+    specs: [
+      { label: "Load Capacity", value: "Extreme Load" },
+      { label: "Operation", value: "Continuous Sorting" },
+      { label: "Customization", value: "Available" }
+    ]
   },
   "impact-crusher": {
     name: "Impact Crusher",
@@ -81,6 +130,12 @@ const productData: Record<string, any> = {
     type: "Impact Crusher",
     desc: "Heavy-duty impact crusher engineered for extreme durability and high-performance material reduction.",
     frames: 100, 
+    image: "/sequences/impact-crusher/001.png",
+    specs: [
+      { label: "Capacity", value: "100-150 TPH" },
+      { label: "Durability", value: "Extreme Duty" },
+      { label: "Function", value: "Material Reduction" }
+    ]
   }
 };
 
@@ -92,12 +147,12 @@ export default function ProductScrollerPage({ params }: { params: { slug: string
   }
 
   const [wheelProgress, setWheelProgress] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault(); 
       setWheelProgress((prev) => {
-        // Adjust the 1500 to change how fast scrolling moves the animation
         const delta = e.deltaY / 1500; 
         return Math.max(0, prev + delta); 
       });
@@ -107,14 +162,13 @@ export default function ProductScrollerPage({ params }: { params: { slug: string
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
-  // Calculate the bouncing visual progress for the UI bar (0% -> 100% -> 0%)
   const cycle = wheelProgress % 2;
   const displayProgress = cycle > 1 ? 2 - cycle : cycle;
 
   return (
     <main className="bg-[#0A0B0E] text-[#F3F4F6] fixed inset-0 w-full h-[100dvh] overflow-hidden flex flex-col justify-between select-none">
       
-      {/* 1. DEEP BACKGROUND LAYER (Particles & Vignette) */}
+      {/* 1. DEEP BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,#14171D_0%,#0A0B0E_80%)]" />
       <div className="absolute inset-0 z-[1] pointer-events-none opacity-50 mix-blend-screen">
         <ParticleBackground />
@@ -129,7 +183,7 @@ export default function ProductScrollerPage({ params }: { params: { slug: string
         />
       </div>
 
-      {/* 3. DYNAMIC SCROLL INDICATOR (Fades out when user starts scrolling) */}
+      {/* 3. SCROLL INDICATOR */}
       <div 
         className={`absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 transition-all duration-1000 pointer-events-none z-[15] ${
           wheelProgress > 0.05 ? "opacity-0 translate-y-10 scale-95" : "opacity-100 translate-y-0 scale-100"
@@ -189,12 +243,13 @@ export default function ProductScrollerPage({ params }: { params: { slug: string
             </div>
           </div>
 
-          <Link 
-            href="/contact"
-            className="block w-full text-center bg-[#FFC700] hover:bg-yellow-400 text-black font-extrabold uppercase tracking-widest py-2 rounded-lg transition-all shadow-md shadow-[#FFC700]/10 text-xs"
+          {/* INTERACTIVE QUOTE MODAL BUTTON */}
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="block w-full text-center bg-[#FFC700] hover:bg-yellow-400 text-black font-extrabold uppercase tracking-widest py-2 rounded-lg transition-all shadow-md shadow-[#FFC700]/10 text-xs cursor-pointer"
           >
             Get Best Quote →
-          </Link>
+          </button>
         </div>
 
         {/* WHEEL SCRUBBING MONITOR */}
@@ -214,6 +269,16 @@ export default function ProductScrollerPage({ params }: { params: { slug: string
         </div>
 
       </div>
+
+      {/* POPUP QUOTE MODAL */}
+      <QuoteModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        productName={product.name}
+        productPrice={product.price}
+        productImage={product.image}
+        specs={product.specs}
+      />
 
     </main>
   );
