@@ -1,5 +1,5 @@
 // Lead Developer: Raghul
-// Theme: Dark Cyber-Industrial (Product Frame Scroller with Explicit Loader)
+// Theme: Dark Cyber-Industrial (Double-Buffered Flicker-Free Engine)
 
 "use client";
 
@@ -32,7 +32,7 @@ export default function FrameScroller({
     }
   }, [customProgress]);
 
-  // Load all 100 frames in parallel and show explicit loading progress
+  // Parallel Loader
   useEffect(() => {
     let isCancelled = false;
     let completedCount = 0;
@@ -85,24 +85,35 @@ export default function FrameScroller({
     };
   }, [folderPath, frameCount]);
 
-  // Render loop
+  // DOUBLE-BUFFERED FLICKER-FREE RENDER LOOP
   useEffect(() => {
     if (!loaded || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d", { alpha: true });
+    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
     if (!ctx) return;
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
+
+    // Create an offscreen buffer canvas to prevent any tearing/flickering
+    const offscreenCanvas = document.createElement("canvas");
+    offscreenCanvas.width = 1920;
+    offscreenCanvas.height = 1080;
+    const offscreenCtx = offscreenCanvas.getContext("2d", { alpha: false });
+    if (!offscreenCtx) return;
+
+    offscreenCtx.imageSmoothingEnabled = true;
+    offscreenCtx.imageSmoothingQuality = "high";
 
     let isRunning = true;
 
     const render = () => {
       if (!isRunning) return;
 
+      // Tightened interpolation curve for buttery motion without lag
       const diff = targetProgressRef.current - currentProgressRef.current;
-      currentProgressRef.current += diff * 0.07;
+      currentProgressRef.current += diff * 0.15;
 
       const safeProgress = Math.max(0, currentProgressRef.current);
       const cycle = safeProgress % 2;
@@ -116,16 +127,21 @@ export default function FrameScroller({
 
         if (img && img.complete && img.naturalWidth > 0) {
           const scale = Math.max(
-            canvas.width / img.naturalWidth,
-            canvas.height / img.naturalHeight
+            offscreenCanvas.width / img.naturalWidth,
+            offscreenCanvas.height / img.naturalHeight
           );
           const drawWidth = img.naturalWidth * scale;
           const drawHeight = img.naturalHeight * scale;
-          const x = canvas.width / 2 - drawWidth / 2;
-          const y = canvas.height / 2 - drawHeight / 2;
+          const x = offscreenCanvas.width / 2 - drawWidth / 2;
+          const y = offscreenCanvas.height / 2 - drawHeight / 2;
 
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, x, y, drawWidth, drawHeight);
+          // 1. Draw to hidden buffer first (Zero visual flicker)
+          offscreenCtx.fillStyle = "#050507";
+          offscreenCtx.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+          offscreenCtx.drawImage(img, x, y, drawWidth, drawHeight);
+
+          // 2. Stamp finished buffer directly to main canvas in 1 atomic frame
+          ctx.drawImage(offscreenCanvas, 0, 0);
 
           lastDrawnFrameRef.current = frameIndex;
         }
@@ -146,11 +162,10 @@ export default function FrameScroller({
 
   return (
     <div className="relative w-full h-screen flex items-center justify-center bg-transparent">
-      {/* Explicit Loading Screen */}
       {!loaded && (
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-50 bg-[#0A0B0E]/95 backdrop-blur-md px-8 py-5 rounded-xl border border-[#262B36] shadow-2xl pointer-events-none">
           <div className="text-[#FFC700] font-mono text-xs tracking-widest uppercase animate-pulse">
-            [ LOADING 3D FRAMES: {loadPercent}% ]
+            [ BUFFERING 3D SEQUENCE: {loadPercent}% ]
           </div>
           <div className="w-48 bg-[#14171D] h-1.5 rounded-full overflow-hidden border border-[#262B36]">
             <div
@@ -168,6 +183,8 @@ export default function FrameScroller({
         style={{
           filter:
             "contrast(1.15) saturate(1.2) drop-shadow(0 0 20px rgba(255,255,255,0.08))",
+          transform: "translateZ(0)",
+          willChange: "transform",
         }}
         className={`w-full max-w-6xl object-contain mix-blend-screen transition-opacity duration-500 ${
           loaded ? "opacity-100" : "opacity-0"
