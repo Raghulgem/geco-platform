@@ -1,9 +1,10 @@
 // Lead Developer: Raghul
-// Theme: Dark Cyber-Industrial (Hyper-Parallelized Instant-Load Engine)
+// Theme: Dark Cyber-Industrial (Global RAM-Cached + Hyper-Parallel Engine)
 
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { preloadSequence, getCachedSequence } from "@/hooks/useAssetCache";
 
 interface FrameScrollerProps {
   folderPath: string;
@@ -17,10 +18,13 @@ export default function FrameScroller({
   customProgress,
 }: FrameScrollerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [loadPercent, setLoadPercent] = useState(0);
 
+  // Check global RAM cache instantly on mount for 0ms loads
+  const cachedImages = getCachedSequence(folderPath);
+  const [loaded, setLoaded] = useState(!!cachedImages);
+  const [loadPercent, setLoadPercent] = useState(cachedImages ? 100 : 0);
+
+  const imagesRef = useRef<HTMLImageElement[]>(cachedImages || []);
   const targetProgressRef = useRef(0);
   const currentProgressRef = useRef(0);
   const animationFrameId = useRef<number | null>(null);
@@ -32,24 +36,33 @@ export default function FrameScroller({
     }
   }, [customProgress]);
 
-  // 1. HYPER-PARALLEL PARALLELIZED LOADER (Loads all 100 images at the exact same time)
+  // 1. GLOBAL RAM CACHE & HYPER-PARALLEL LOADER
   useEffect(() => {
     let isCancelled = false;
-    let completedCount = 0;
-    const imgArray: (HTMLImageElement | null)[] = new Array(frameCount).fill(null);
-    imagesRef.current = imgArray;
 
-    const loadAllImages = async () => {
+    // If already saved in RAM from previous navigation or background preloader
+    const existingCache = getCachedSequence(folderPath);
+    if (existingCache) {
+      imagesRef.current = existingCache;
+      setLoaded(true);
+      setLoadPercent(100);
+      return;
+    }
+
+    // Otherwise, stream in parallel and cache globally in RAM
+    const loadImages = async () => {
+      const imgArray = new Array(frameCount).fill(null);
+      let completedCount = 0;
       const promises = [];
 
       for (let i = 1; i <= frameCount; i++) {
         const paddedNumber = String(i).padStart(3, "0");
         const src = `${folderPath}/${paddedNumber}.png`;
 
-        const promise = new Promise<void>((resolve) => {
+        const p = new Promise<void>((resolve) => {
           const img = new Image();
           
-          const handleCompletion = () => {
+          const handleComplete = () => {
             if (isCancelled) return;
             completedCount++;
             setLoadPercent(Math.round((completedCount / frameCount) * 100));
@@ -58,30 +71,30 @@ export default function FrameScroller({
 
           img.onload = () => {
             imgArray[i - 1] = img;
-            handleCompletion();
+            handleComplete();
           };
 
           img.onerror = () => {
-            // Even if a frame fails, don't stall the loader
-            handleCompletion();
+            handleComplete(); // Skip missing/errored frames gracefully
           };
 
-          // Trigger parallel download immediately
           img.src = src;
         });
 
-        promises.push(promise);
+        promises.push(p);
       }
 
-      // Wait for all 100 images to finish downloading in parallel
       await Promise.all(promises);
 
       if (!isCancelled) {
+        // Save into global cache via our preloader utility
+        preloadSequence(folderPath, frameCount);
+        imagesRef.current = imgArray;
         setLoaded(true);
       }
     };
 
-    loadAllImages();
+    loadImages();
 
     return () => {
       isCancelled = true;
@@ -149,11 +162,11 @@ export default function FrameScroller({
 
   return (
     <div className="relative w-full h-screen flex items-center justify-center bg-transparent">
-      {/* LOADING PROGRESS */}
+      {/* LOADING PROGRESS (Only shows on first-ever load, subsequent clicks load instantly from RAM) */}
       {!loaded && (
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-50 bg-[#0A0B0E]/90 backdrop-blur-md px-8 py-5 rounded-xl border border-[#262B36] shadow-2xl pointer-events-none">
           <div className="text-[#FFC700] font-mono text-xs tracking-widest uppercase animate-pulse">
-            [ PARALLEL STREAMING: {loadPercent}% ]
+            [ CACHING TO RAM: {loadPercent}% ]
           </div>
           <div className="w-48 bg-[#14171D] h-1.5 rounded-full overflow-hidden border border-[#262B36]">
             <div
