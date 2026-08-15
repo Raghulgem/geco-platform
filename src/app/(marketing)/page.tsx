@@ -1,5 +1,5 @@
 // Lead Developer: Raghul 
-// Theme: Dark Cyber-Industrial (Clean Stacked Layout with Active Video & Functional Links)
+// Theme: Dark Cyber-Industrial (Complete Unbroken Homepage Layout)
 // Location: src/app/page.tsx
 
 "use client";
@@ -11,7 +11,7 @@ import { preloadSequence } from "@/hooks/useAssetCache";
 export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Background Preloader for 0ms Instant Product Switching
+  // Background Preloader: Staggered and Idle-Optimized (Non-blocking)
   useEffect(() => {
     const machines = [
       "bucket-sand-washing",
@@ -23,10 +23,15 @@ export default function HomePage() {
       "impact-crusher"
     ];
     
-    // Silently preload all 7 sequences into RAM immediately when home page opens
-    machines.forEach(slug => {
-      preloadSequence(`/sequences/${slug}`, 100);
-    });
+    const timer = setTimeout(() => {
+      machines.forEach((slug, index) => {
+        setTimeout(() => {
+          preloadSequence(`/sequences/${slug}`, 100);
+        }, index * 600);
+      });
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleTransmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,7 +55,7 @@ export default function HomePage() {
     <main className="relative min-h-screen text-[#F3F4F6] pt-32 pb-0 z-10 flex flex-col items-center">
       
       {/* ========================================= */}
-      {/* 1. HERO & BADGES (Clean Stacked Structure)*/}
+      {/* 1. HERO & BADGES                          */}
       {/* ========================================= */}
       <div className="w-full max-w-7xl mx-auto px-6 space-y-6 mb-24">
         
@@ -188,7 +193,7 @@ export default function HomePage() {
         </section>
 
         {/* ========================================= */}
-        {/* 4. TELEMETRY (Upgraded & Polished)        */}
+        {/* 4. TELEMETRY                              */}
         {/* ========================================= */}
         <section className="bg-gradient-to-b from-[#14171D] to-[#0A0B0E] border border-[#262B36] rounded-2xl p-8 md:p-12 shadow-2xl mt-12 relative overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#FFC700] opacity-[0.03] blur-[100px] pointer-events-none rounded-full"></div>
@@ -277,10 +282,94 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* FOOTER */}
+      {/* ========================================= */}
+      {/* 5. CYBER-GRID FOOTER                      */}
+      {/* ========================================= */}
       <footer className="w-full bg-[#050507] border-t border-[#1A1D24] mt-24 pt-20 pb-10 relative z-0">
-        {/* ... (Your original footer code) ... */}
-        {/* (Keep exactly as original to maintain the layout) */}
+        <Link href="/products" className="absolute right-12 -top-16 w-72 h-32 bg-[#0E1116]/80 backdrop-blur-xl border border-[#FFC700]/30 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] flex items-center p-4 gap-4 z-20 hidden lg:flex group cursor-pointer hover:border-[#FFC700] transition-colors">
+          <div className="w-24 h-24 bg-[#050507] rounded-lg border border-[#262B36] flex items-center justify-center p-2 overflow-hidden">
+             <img src="/sequences/secondary-jaw-30x10/001.png" alt="Preview" className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <p className="text-white text-xs font-bold uppercase tracking-widest mb-1">Full Catalog</p>
+            <p className="text-gray-500 text-[10px] font-mono mb-2">Access 3D Viewers</p>
+            <span className="text-[#FFC700] text-[10px] font-bold uppercase tracking-widest border-b border-[#FFC700]">Initialize →</span>
+          </div>
+        </Link>
+
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+          <div className="space-y-6 lg:col-span-1">
+            <div>
+              <h3 className="text-2xl font-black uppercase text-white tracking-tighter">GECO</h3>
+              <p className="text-[#FFC700] text-xs font-bold tracking-widest uppercase">Grinding Centre</p>
+            </div>
+            <div className="space-y-1 text-[11px] text-gray-500 font-mono">
+              <p className="text-white">Geco Crusher (MD)</p>
+              <p>636/2, Shanmuga Nagar</p>
+              <p>Opp To Jayalakshmi Mills</p>
+              <p>Trichy Road, Singanallur</p>
+              <p>Coimbatore - 641005, TN, India</p>
+            </div>
+            <a href="https://www.google.com/maps/search/?api=1&query=636%2F2%2C+Thiyagi+Shanmuga+Nagar%2C+Vasanth+Nagar%2C+Singanallur%2C+Coimbatore+-+641005%2C+TN%2C+India" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#3b82f6] hover:text-white uppercase tracking-widest border border-[#262B36] px-3 py-1.5 rounded inline-block transition-colors">
+              Open Maps ⬈
+            </a>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest border-b border-[#262B36] pb-3">Comms Link</h4>
+            <div className="space-y-4 text-[11px] font-mono">
+              <div>
+                <p className="text-gray-600 mb-1">Direct Line</p>
+                <a href="tel:+9108047652002" className="text-lg text-[#FFC700] font-bold hover:text-white transition-colors">08047652002</a>
+              </div>
+              <div className="flex flex-col gap-2">
+                <a href="mailto:info@gecogrinding.com" className="bg-[#14171D] text-left text-gray-400 hover:text-white border border-[#262B36] px-4 py-2 rounded transition-colors w-fit block">
+                  ✉ Send E-mail
+                </a>
+                <a href="sms:+9108047652002" className="bg-[#14171D] text-left text-gray-400 hover:text-white border border-[#262B36] px-4 py-2 rounded transition-colors w-fit block">
+                  📱 Send SMS
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest border-b border-[#262B36] pb-3 mb-6">Directory</h4>
+            <ul className="space-y-3 text-[11px] text-gray-500 font-mono">
+              <li><Link href="/about" className="hover:text-[#FFC700] transition-colors">/ About_Us</Link></li>
+              <li><Link href="/contact" className="hover:text-[#FFC700] transition-colors">/ Franchise_Enquiry</Link></li>
+              <li><button onClick={() => alert("Loading Testimonials...")} className="hover:text-[#FFC700] transition-colors text-left">/ Testimonials</button></li>
+              <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-[#FFC700] transition-colors text-left">/ Corporate_Video</button></li>
+              <li><Link href="/contact" className="hover:text-[#FFC700] transition-colors">/ Contact_Data</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest border-b border-[#262B36] pb-3 mb-6">Hardware</h4>
+            <ul className="space-y-3 text-[11px] text-gray-500 font-mono">
+              <li><Link href="/products" className="hover:text-[#FFC700] transition-colors">Jaw Crusher Series</Link></li>
+              <li><Link href="/products" className="hover:text-[#FFC700] transition-colors">Stone Crusher Plants</Link></li>
+              <li><Link href="/products" className="hover:text-[#FFC700] transition-colors">Vertical Shaft Impactor</Link></li>
+              <li><Link href="/products" className="hover:text-[#FFC700] transition-colors">Mobile Crushing Rigs</Link></li>
+              <li><Link href="/products" className="hover:text-[#FFC700] transition-colors">Vibrating Screens</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 border-t border-[#1A1D24] pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-[10px] text-gray-600 font-mono text-center md:text-left">
+            <p>© 2026 Geco Grinding Centre. All Rights Reserved. <span className="underline cursor-pointer hover:text-white" onClick={() => alert("Terms of Use modal initializing...")}>Terms of Use</span></p>
+            <p>Developed & Managed by IndiaMART InterMESH Limited.</p>
+          </div>
+          
+          <div className="flex items-center gap-2 border border-[#262B36] bg-[#0A0B0E] px-3 py-1.5 rounded">
+            <span className="text-red-500 font-black tracking-tight text-sm">M</span>
+            <div className="leading-none">
+              <p className="text-[10px] text-white font-bold">IndiaMART</p>
+              <p className="text-[8px] text-gray-500 uppercase tracking-widest">Verified Member</p>
+            </div>
+          </div>
+        </div>
       </footer>
     </main>
   );
