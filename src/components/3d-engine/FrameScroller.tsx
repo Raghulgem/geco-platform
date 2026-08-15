@@ -1,5 +1,5 @@
 // Lead Developer: Raghul
-// Theme: Dark Cyber-Industrial (Direct On-Demand Parallel Loader)
+// Theme: Dark Cyber-Industrial (Product Frame Scroller with Explicit Loader)
 
 "use client";
 
@@ -32,7 +32,7 @@ export default function FrameScroller({
     }
   }, [customProgress]);
 
-  // Direct parallel loading on mount for this specific product page
+  // Load all 100 frames in parallel and show explicit loading progress
   useEffect(() => {
     let isCancelled = false;
     let completedCount = 0;
@@ -85,7 +85,7 @@ export default function FrameScroller({
     };
   }, [folderPath, frameCount]);
 
-  // Ultra-smooth render loop
+  // Render loop
   useEffect(() => {
     if (!loaded || !canvasRef.current) return;
 
@@ -146,10 +146,11 @@ export default function FrameScroller({
 
   return (
     <div className="relative w-full h-screen flex items-center justify-center bg-transparent">
+      {/* Explicit Loading Screen */}
       {!loaded && (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-50 bg-[#0A0B0E]/90 backdrop-blur-md px-8 py-5 rounded-xl border border-[#262B36] shadow-2xl pointer-events-none">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-50 bg-[#0A0B0E]/95 backdrop-blur-md px-8 py-5 rounded-xl border border-[#262B36] shadow-2xl pointer-events-none">
           <div className="text-[#FFC700] font-mono text-xs tracking-widest uppercase animate-pulse">
-            [ LOADING FRAMES: {loadPercent}% ]
+            [ LOADING 3D FRAMES: {loadPercent}% ]
           </div>
           <div className="w-48 bg-[#14171D] h-1.5 rounded-full overflow-hidden border border-[#262B36]">
             <div
